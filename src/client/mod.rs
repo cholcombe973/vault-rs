@@ -3,7 +3,7 @@ use std::io::Read;
 use std::result::Result as StdResult;
 use std::fmt;
 
-use reqwest::{self, header, Client, Method, Response};
+use reqwest::{self, header::CONTENT_TYPE, header::HeaderValue, Client, Method, Response};
 use client::error::{Error, Result};
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 use serde::de::{self, Visitor, DeserializeOwned};
@@ -488,7 +488,7 @@ impl VaultClient<TokenData> {
         let token = token.into();
         let res = try!(
             handle_hyper_response(client.get(try!(host.join("/v1/auth/token/lookup-self")))
-                                  .header(XVaultToken(token.clone()))
+                                  .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(token))?)
                                   .send()));
         let decoded: VaultResponse<TokenData> = parse_vault_response(res)?;
         Ok(VaultClient {
@@ -980,17 +980,17 @@ impl<T> VaultClient<T>
         match wrap_ttl {
             Some(wrap_ttl) => {
                 Ok(try!(handle_hyper_response(self.client
-                    .request(Method::Get, h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
-                    .header(XVaultWrapTTL(wrap_ttl.into()))
+                    .request(Method::GET, h)
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
+                    .header("X-Vault-Wrap-TTL", HeaderValue::from_str(&XVaultWrapTTL(wrap_ttl.into()))?)
                     .send())))
             },
             None => {
                 Ok(try!(handle_hyper_response(self.client
-                    .request(Method::Get, h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
+                    .request(Method::GET, h)
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
                     .send())))
             }
         }
@@ -998,9 +998,9 @@ impl<T> VaultClient<T>
 
     fn delete<S: AsRef<str>>(&self, endpoint: S) -> Result<Response> {
         Ok(try!(handle_hyper_response(self.client
-            .request(Method::Delete, try!(self.host.join(endpoint.as_ref())))
-            .header(XVaultToken(self.token.to_string()))
-            .header(header::ContentType::json())
+            .request(Method::DELETE, try!(self.host.join(endpoint.as_ref())))
+            .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+            .header(CONTENT_TYPE, "application/json")
             .send())))
     }
 
@@ -1018,18 +1018,18 @@ impl<T> VaultClient<T>
         match wrap_ttl{
             Some(wrap_ttl) => {
                 Ok(try!(handle_hyper_response(self.client
-                    .request(Method::Post, h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
-                    .header(XVaultWrapTTL(wrap_ttl.into()))
+                    .request(Method::POST, h)
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
+                    .header("X-Vault-Wrap-TTL", HeaderValue::from_str(&XVaultWrapTTL(wrap_ttl.into()))?)
                     .body(body)
                     .send())))
             }
             None => {
                 Ok(try!(handle_hyper_response(self.client
-                    .request(Method::Post, h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
+                    .request(Method::POST, h)
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
                     .body(body)
                     .send())))
             }
@@ -1050,18 +1050,18 @@ impl<T> VaultClient<T>
         match wrap_ttl{
             Some(wrap_ttl) => {
                 Ok(try!(handle_hyper_response(self.client
-                    .request(Method::Put, h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
-                    .header(XVaultWrapTTL(wrap_ttl.into()))
+                    .request(Method::PUT, h)
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
+                    .header("X-Vault-Wrap-TTL", HeaderValue::from_str(&XVaultWrapTTL(wrap_ttl.into()))?)
                     .body(body)
                     .send())))
             }
             None => {
                 Ok(try!(handle_hyper_response(self.client
-                    .request(Method::Put, h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
+                    .request(Method::PUT, h)
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
                     .body(body)
                     .send())))
             }
@@ -1083,17 +1083,17 @@ impl<T> VaultClient<T>
             Some(wrap_ttl) => {
                 Ok(try!(handle_hyper_response(self.client
                     .request(Method::Extension("LIST".into()), h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
-                    .header(XVaultWrapTTL(wrap_ttl.into()))
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
+                    .header("X-Vault-Wrap-TTL", HeaderValue::from_str(&XVaultWrapTTL(wrap_ttl.into()))?)
                     .body(body)
                     .send())))
             }
             None => {
                 Ok(try!(handle_hyper_response(self.client
                     .request(Method::Extension("LIST".into()), h)
-                    .header(XVaultToken(self.token.to_string()))
-                    .header(header::ContentType::json())
+                    .header("X-Vault-Token", HeaderValue::from_str(&XVaultToken(self.token))?)
+                    .header(CONTENT_TYPE, "application/json")
                     .body(body)
                     .send())))
             }

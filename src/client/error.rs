@@ -12,6 +12,12 @@ quick_error! {
             display("reqwest error: {}", err)
             cause(err)
         }
+        ReqwestInvalidHeaderValue(err: ::reqwest::header::InvalidHeaderValue) {
+            from()
+            description("reqwest header invalid value")
+            display("request header invalid value: {}", err)
+            cause(err)
+        }
         /// `serde_json::Error`
         SerdeJson(err: ::serde_json::Error) {
             from()
