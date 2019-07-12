@@ -12,6 +12,7 @@ quick_error! {
             display("reqwest error: {}", err)
             cause(err)
         }
+        /// `reqwest::header::InvalidHeaderValue` errors
         ReqwestInvalidHeaderValue(err: ::reqwest::header::InvalidHeaderValue) {
             from()
             description("reqwest header invalid value")
@@ -42,6 +43,13 @@ quick_error! {
             from()
             description("url parse error")
             display("url parse error: {}", err)
+            cause(err)
+        }
+        /// `http::method::InvalidMethod` errors
+        InvalidMethodError(err: ::http::method::InvalidMethod) {
+            from()
+           description("header invalid method")
+            display("header invalid method: {}", err)
             cause(err)
         }
     }

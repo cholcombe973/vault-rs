@@ -25,9 +25,9 @@ extern crate quick_error;
 pub extern crate chrono;
 pub extern crate url;
 extern crate serde;
-#[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate http;
 
 /// vault client
 pub mod client;
